@@ -44,21 +44,21 @@ Grammar_parser::Grammar_parser(const string& grammar_file) {
 
 			if (parts[0] == "%term") {
 				if (parts.size() < 3) {
-					throw ParseException("Invalid terminal declaration", line);
+					throw Parse_exception("Invalid terminal declaration", line);
 				}
 
 				int terminal_id = stoi(parts[2]);
 
 				if (terminal_codes.count(terminal_id)) {
-					throw ParseException("Duplicate terminal id", line);
+					throw Parse_exception("Duplicate terminal id", line);
 				}
 
 				if (nonterminals.find(parts[1]) != nonterminals.end()) {
-					throw ParseException("Redeclaration of nonterminal as terminal", line);
+					throw Parse_exception("Redeclaration of nonterminal as terminal", line);
 				}
 
 				if (terminals.find(parts[1]) != terminals.end()) {
-					throw ParseException("Redeclaration of terminal", line);
+					throw Parse_exception("Redeclaration of terminal", line);
 				}
 
 				terminals[parts[1]] = terminal_id;
@@ -66,7 +66,7 @@ Grammar_parser::Grammar_parser(const string& grammar_file) {
 			}
 			else if (parts[0] == "%nonterm") {
 				if (parts.size() < 2) {
-					throw ParseException("Invalid nonterminal declaration", line);
+					throw Parse_exception("Invalid nonterminal declaration", line);
 				}
 
 				if (start_nonterminal.empty()) {
@@ -74,22 +74,24 @@ Grammar_parser::Grammar_parser(const string& grammar_file) {
 				}
 
 				if (terminals.find(parts[1]) != terminals.end()) {
-					throw ParseException("Redeclaration of terminal as nonterminal", line);
+					throw Parse_exception("Redeclaration of terminal as nonterminal", line);
 				}
 
 				if (nonterminals.find(parts[1]) != nonterminals.end()) {
-					throw ParseException("Redeclaration of nonterminal", line);
+					throw Parse_exception("Redeclaration of nonterminal", line);
 				}
 
-				nonterminals[parts[1]] = nonterminals.size();
+				int code = nonterminals.size();
+				nonterminal_codes.insert(code);
+				nonterminals[parts[1]] = code;
 			}
 			else {
 				if (parts.size() < 2) {
-					throw ParseException("Invalid transition declaration", line);
+					throw Parse_exception("Invalid transition declaration", line);
 				}
 
 				if (nonterminals.find(parts[0]) == nonterminals.end()) {
-					throw ParseException("Undeclared nonterminal", line);
+					throw Parse_exception("Undeclared nonterminal", line);
 				}
 
 				int left_part = nonterminals[parts[0]];
@@ -108,7 +110,7 @@ Grammar_parser::Grammar_parser(const string& grammar_file) {
 							right_part.push_back(Grammar_part{ Grammar_part::TERMINAL, terminals[parts[i]] });
 						}
 						else {
-							throw ParseException("Undeclared token", line);
+							throw Parse_exception("Undeclared token", line);
 						}
 					}
 				}
@@ -152,4 +154,20 @@ Grammar_parser::Grammar_parser(const string& grammar_file) {
 			printf("\n");
 		}
 	}
+}
+
+const unordered_set<int>& Grammar_parser::get_terminals_codes() const {
+	return terminal_codes;
+}
+
+const unordered_set<int>& Grammar_parser::get_nonterminals_codes() const {
+	return nonterminal_codes;
+}
+
+int Grammar_parser::get_start_nonterminal_code() const {
+	return nonterminals.at(start_nonterminal);
+}
+
+const unordered_map<int, vector<vector<Grammar_part>>>& Grammar_parser::get_rules() const {
+	return rules;
 }

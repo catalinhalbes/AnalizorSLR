@@ -21,12 +21,18 @@
     <ClCompile Include="Grammar_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grammar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Grammar_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Grammar_part.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grammar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
