@@ -34,25 +34,23 @@ namespace std {
 		}
 	};
 
-	template<>
-	struct hash<unordered_set<Grammar_part>> {
-		inline size_t operator()(const unordered_set<Grammar_part>& parts) const {
+	template<class T>
+	struct hash<unordered_set<T>> {
+		inline size_t operator()(const unordered_set<T>& parts) const {
 			size_t res = 0;
 			for (const auto& part : parts) {
-				hash_combine(res, part.type);
-				hash_combine(res, part.id);
+				hash_combine(res, part);
 			}
 			return res;
 		}
 	};
 
-	template<>
-	struct hash<vector<Grammar_part>> {
-		inline size_t operator()(const vector<Grammar_part>& parts) const {
+	template<class T>
+	struct hash<vector<T>> {
+		inline size_t operator()(const vector<T>& parts) const {
 			size_t res = 0;
 			for (const auto& part : parts) {
-				hash_combine(res, part.type);
-				hash_combine(res, part.id);
+				hash_combine(res, part);
 			}
 			return res;
 		}
