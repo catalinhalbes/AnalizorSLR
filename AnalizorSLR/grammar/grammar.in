@@ -1,0 +1,19 @@
+%term ID 0
+%term CONST 1
+%term PLUS 2
+%term MULT 3
+%term OB 4
+%term CB 5
+
+%nonterm expr
+%nonterm term
+%nonterm fact
+%nonterm test
+
+expr -> term PLUS expr
+expr -> term
+term -> fact MULT term
+term -> fact
+fact -> OB expr CB
+fact -> CONST
+test -> 
