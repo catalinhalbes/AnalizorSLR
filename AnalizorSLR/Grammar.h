@@ -22,6 +22,9 @@ private:
 	const unordered_set<int>& nonterminals;
 	int start_nonterminal;
 	const unordered_map<int, vector<vector<Grammar_part>>>& rules;
+	unordered_map<int, unordered_set<Grammar_part>> first1;
+
+	void computeFirst1();
 
 public:
 	Grammar(
@@ -31,9 +34,11 @@ public:
 		const unordered_map<int, vector<vector<Grammar_part>>>& rules
 	);
 
-	static unordered_set<vector<Grammar_part>> plus1(
-		const unordered_set<vector<Grammar_part>>& L1,
-		const unordered_set<vector<Grammar_part>>& L2
+	static unordered_set<Grammar_part> plus1(
+		const unordered_set<Grammar_part>& L1,
+		const unordered_set<Grammar_part>& L2
 	);
+
+	const unordered_map<int, unordered_set<Grammar_part>>& getFirst1() const;
 };
 

@@ -23,6 +23,8 @@ inline void hash_combine(std::size_t& s, const T& v) {
 	s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
 }
 
+const Grammar_part EPSILON{ Grammar_part::EPSILON, -1 };
+
 namespace std {
 	template<>
 	struct hash<Grammar_part> {

@@ -99,7 +99,7 @@ Grammar_parser::Grammar_parser(const string& grammar_file) {
 
 				if (parts.size() == 2) {
 					//epsilon transition
-					right_part.push_back(Grammar_part{ Grammar_part::EPSILON, 0 });
+					right_part.push_back(EPSILON);
 				}
 				else {
 					for (int i = 2; i < parts.size(); i++) {

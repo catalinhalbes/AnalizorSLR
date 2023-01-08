@@ -1,0 +1,20 @@
+%term PLUS 0
+%term MUL 1
+%term LPARAN 2
+%term RPARAN 3
+%term a 4
+
+%nonterm S
+%nonterm A
+%nonterm B
+%nonterm C
+%nonterm D
+
+S -> B A
+A -> PLUS B A
+A -> 
+B -> D C
+C -> MUL D C
+C -> 
+D -> LPARAN S RPARAN
+D -> a
