@@ -19,10 +19,16 @@ public:
 	/// Throws: out_of_range exception;
 	/// </summary>
 	/// <returns>Grammar_part</returns>
-	inline const Grammar_part& getSymbolPastDot() const;
+	inline const Grammar_part& getSymbolPastDot() const {
+		return right[dot_pos];
+	}
 
-	inline bool isDotAtEnd() const;
+	inline bool isDotAtEnd() const {
+		return dot_pos == right.size();
+	}
 
-	inline bool operator == (const Element& ot) const;
+	inline bool operator == (const Element& ot) const {
+		return left == ot.left && right == ot.right && u == ot.u && dot_pos == ot.dot_pos;
+	}
 };
 

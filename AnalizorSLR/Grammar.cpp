@@ -34,12 +34,90 @@ const unordered_map<int, unordered_set<Grammar_part>>& Grammar::getFollow1() con
 	return follow1;
 }
 
+const vector<unordered_set<Element>>& Grammar::getCanonicalClosure() const
+{
+	return canonical_closure;
+}
+
+int Grammar::getAcceptState() const
+{
+	return accept_state;
+}
+
+const unordered_map<int, unordered_map<Grammar_part, int>>& Grammar::getAF() const
+{
+	return AF;
+}
+
 void Grammar::enrichGrammar()
 {
 	int added = nonterminals.size();
 	nonterminals.insert(added);
 	rules[added] = { { Grammar_part { Grammar_part::NONTERMINAL, start_nonterminal } } };
 	start_nonterminal = added;
+}
+
+void Grammar::computeCanonicalClosure()
+{
+	unordered_set<Element> I = closure(Element{ start_nonterminal, rules[start_nonterminal][0], DOLLAR, 0 });
+	canonical_closure.push_back(I);
+	
+	bool finished = false;
+
+	while (!finished) {
+		finished = true;
+
+		for (int i = 0; i < canonical_closure.size(); i++) {
+			auto handle_collection = [&](const Grammar_part& part) {
+				I = goTo(canonical_closure[i], part);
+
+				if (I.size() == 0) {
+					return;
+				}
+
+				const auto& it = find(canonical_closure.begin(), canonical_closure.end(), I);
+				int index = it - canonical_closure.begin();
+
+				if (it == canonical_closure.end()) {
+					canonical_closure.push_back(I);
+
+					if (accept_state < 0) {
+						if (I.size() == 1) {
+							const Element& e = *(I.begin());
+							if (
+								e.left == start_nonterminal &&
+								e.right.size() == 1 &&
+								e.right[0].type == Grammar_part::NONTERMINAL &&
+								e.right[0].id == original_start_nonterminal &&
+								e.u.type == Grammar_part::DOLLAR &&
+								e.isDotAtEnd()
+								) {
+								accept_state = index;
+							}
+						}
+					}
+				}
+
+				if (
+					AF.find(i) == AF.end() ||
+					AF.at(i).find(part) == AF.at(i).end()
+				) {
+					AF[i][part] = index;
+					finished = false;
+				}
+			};
+
+			for (int term : terminals) {
+				Grammar_part part{ Grammar_part::TERMINAL, term };
+				handle_collection(part);
+			}
+
+			for (int nonterm : nonterminals) {
+				Grammar_part part{ Grammar_part::NONTERMINAL, nonterm };
+				handle_collection(part);
+			}
+		}
+	}
 }
 
 void Grammar::computeFirst1() {
@@ -131,15 +209,76 @@ void Grammar::computeFollow1()
 							modified = true;
 						}
 					}
-					const auto& X = rule[rule.size() - 1];
-					if (X.type == Grammar_part::NONTERMINAL) {
-						auto copyFollow1A = follow1[A];
-						follow1[X.id].merge(copyFollow1A);
-					}
+				}
+				const auto& X = rule[rule.size() - 1];
+				if (X.type == Grammar_part::NONTERMINAL) {
+					auto copyFollow1A = follow1[A];
+					follow1[X.id].merge(copyFollow1A);
 				}
 			}
 		}
 	} while (modified);
+}
+
+unordered_set<Element> Grammar::closure(const Element& e) const
+{
+	unordered_set<Element> rez;
+	unordered_set<int> explored;
+	rez.insert(e);
+
+	if (e.isDotAtEnd()) {
+		return rez;
+	}
+
+	bool finished = false;
+
+	while (!finished) {
+		finished = true;
+
+		for (const Element& el : rez) {
+			Grammar_part B = el.getSymbolPastDot();
+			if (B.type == Grammar_part::NONTERMINAL && explored.count(B.id) == 0) {
+				explored.insert(B.id);
+
+				if (rules.find(B.id) != rules.end()) {
+					for (const auto& rule : rules.at(B.id)) {
+						for (const auto& u : follow1.at(B.id)) {
+							rez.insert(Element{ B.id , rule, u, 0 });
+						}
+					}
+				}
+
+				finished = false;
+				break;
+			}
+		}
+	}
+
+	return rez;
+}
+
+unordered_set<Element> Grammar::goTo(const unordered_set<Element>& element_set, const Grammar_part& p) const
+{
+	unordered_set<Element> goto_pre_closure;
+	unordered_set<Element> res;
+
+	for (const auto& el : element_set) {
+		if (!el.isDotAtEnd()) {
+			Grammar_part X = el.getSymbolPastDot();
+			if (p == X) {
+				Element temp_el = el;
+				temp_el.dot_pos += 1;
+
+				goto_pre_closure.insert(temp_el);
+			}
+		}
+	}
+
+	for (const auto& el : goto_pre_closure) {
+		res.merge(closure(el));
+	}
+
+	return res;
 }
 
 Grammar::Grammar(
@@ -151,9 +290,11 @@ Grammar::Grammar(
 	terminals(terminals),
 	nonterminals(nonterminals),
 	start_nonterminal(start_nonterminal),
+	original_start_nonterminal(start_nonterminal),
 	rules(rules)
 {
 	enrichGrammar();
 	computeFirst1();
 	computeFollow1();
+	computeCanonicalClosure();
 }

@@ -20,6 +20,7 @@ class Grammar
 {
 private:
 	int start_nonterminal;
+	int original_start_nonterminal;
 	unordered_set<int> terminals;
 	unordered_set<int> nonterminals;
 	unordered_map<int, vector<vector<Grammar_part>>> rules;
@@ -27,10 +28,19 @@ private:
 	unordered_map<int, unordered_set<Grammar_part>> follow1;
 
 	vector<unordered_set<Element>> canonical_closure;
+	//<k1, <k2, v>>
+	//k1 - canonical_closure index
+	//k2 - grammar_part
+	//v  - canonical_closure index
+	unordered_map<int, unordered_map<Grammar_part, int>> AF;
+	int accept_state = -1;	//canonical_closure index
 
 	void enrichGrammar();
+	void computeCanonicalClosure();
 	void computeFirst1();
 	void computeFollow1();
+	unordered_set<Element> closure(const Element& e) const;
+	unordered_set<Element> goTo(const unordered_set<Element>& es, const Grammar_part& p) const;
 
 public:
 	Grammar(
@@ -47,5 +57,8 @@ public:
 
 	const unordered_map<int, unordered_set<Grammar_part>>& getFirst1() const;
 	const unordered_map<int, unordered_set<Grammar_part>>& getFollow1() const;
+	const vector<unordered_set<Element>>& getCanonicalClosure() const;
+	int getAcceptState() const;
+	const unordered_map<int, unordered_map<Grammar_part, int>>& getAF() const;
 };
 

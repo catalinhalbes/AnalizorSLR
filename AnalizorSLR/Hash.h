@@ -41,7 +41,8 @@ namespace std {
 		inline size_t operator()(const unordered_set<T>& parts) const {
 			size_t res = 0;
 			for (const auto& part : parts) {
-				hash_combine(res, part);
+				//hash_combine(res, part);
+				res ^= hash(part);
 			}
 			return res;
 		}

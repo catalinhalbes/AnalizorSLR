@@ -129,7 +129,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnalizorSLR.cpp" />
-    <ClCompile Include="Element.cpp" />
     <ClCompile Include="Grammar.cpp" />
     <ClCompile Include="Grammar_parser.cpp" />
   </ItemGroup>

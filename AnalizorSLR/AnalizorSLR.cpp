@@ -41,6 +41,51 @@ int main(int argc, char** argv) {
             printf("\n");
         }
         printf("}\n");
+
+        const auto& cc = grammar.getCanonicalClosure();
+
+        for (int i = 0; i < cc.size(); i++) {
+            printf("I%d {\n", i);
+            for (const Element& el : cc[i]) {
+                printf("\t[%d -> ", el.left);
+                for (int j = 0; j < el.right.size(); j++) {
+                    if (el.dot_pos == j) {
+                        printf(". ");
+                    }
+                    if (el.right[j].type == Grammar_part::NONTERMINAL) {
+                        printf("%d(N) ", el.right[j].id);
+                    }
+                    else if (el.right[j].type == Grammar_part::TERMINAL) {
+                        printf("%d(T) ", el.right[j].id);
+                    }
+                    else if (el.right[j].type == Grammar_part::EPSILON) {
+                        printf("EPS ");
+                    }
+                    else if (el.right[j].type == Grammar_part::DOLLAR) {
+                        printf("DOLL ");
+                    }
+                }
+                if (el.dot_pos == el.right.size()) {
+                    printf(". ");
+                }
+                printf(", %d]\n", el.u.id);
+            }
+            printf("}\n");
+        }
+
+        printf("Accept state: I%d\n", grammar.getAcceptState());
+
+        auto const& AF = grammar.getAF();
+
+        for (const auto& pair1 : AF) {
+            int start_idx = pair1.first;
+            for (const auto& pair2 : pair1.second) {
+                if (pair2.first.type == Grammar_part::NONTERMINAL)
+                    printf("I%d --%d(N)--> I%d\n", start_idx, pair2.first.id, pair2.second);
+                else
+                    printf("I%d --%d(T)--> I%d\n", start_idx, pair2.first.id, pair2.second);
+            }
+        }
     }
     catch (const Parse_exception& ex) {
         cout << "Line " << ex.line << ": " << ex.message << endl;
