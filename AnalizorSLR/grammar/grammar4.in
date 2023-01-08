@@ -1,0 +1,13 @@
+%term a 0
+%term b 1
+%term x 2 
+
+%nonterm S
+%nonterm A
+%nonterm B
+
+S -> A
+S -> x b
+A -> a A b
+A -> B
+B -> x

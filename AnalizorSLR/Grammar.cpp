@@ -1,7 +1,5 @@
 #include "Grammar.h"
 
-
-
 unordered_set<Grammar_part> Grammar::plus1(
 	const unordered_set<Grammar_part>& L1,
 	const unordered_set<Grammar_part>& L2
@@ -34,6 +32,14 @@ const unordered_map<int, unordered_set<Grammar_part>>& Grammar::getFirst1() cons
 const unordered_map<int, unordered_set<Grammar_part>>& Grammar::getFollow1() const
 {
 	return follow1;
+}
+
+void Grammar::enrichGrammar()
+{
+	int added = nonterminals.size();
+	nonterminals.insert(added);
+	rules[added] = { { Grammar_part { Grammar_part::NONTERMINAL, start_nonterminal } } };
+	start_nonterminal = added;
 }
 
 void Grammar::computeFirst1() {
@@ -147,6 +153,7 @@ Grammar::Grammar(
 	start_nonterminal(start_nonterminal),
 	rules(rules)
 {
+	enrichGrammar();
 	computeFirst1();
 	computeFollow1();
 }

@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "Grammar_part.h"
+#include "Hash.h"
 
 using namespace std;
 
@@ -18,13 +19,16 @@ struct Grammar_exception {
 class Grammar
 {
 private:
-	const unordered_set<int>& terminals;
-	const unordered_set<int>& nonterminals;
 	int start_nonterminal;
-	const unordered_map<int, vector<vector<Grammar_part>>>& rules;
+	unordered_set<int> terminals;
+	unordered_set<int> nonterminals;
+	unordered_map<int, vector<vector<Grammar_part>>> rules;
 	unordered_map<int, unordered_set<Grammar_part>> first1;
 	unordered_map<int, unordered_set<Grammar_part>> follow1;
 
+	vector<unordered_set<Element>> canonical_closure;
+
+	void enrichGrammar();
 	void computeFirst1();
 	void computeFollow1();
 

@@ -129,13 +129,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnalizorSLR.cpp" />
+    <ClCompile Include="Element.cpp" />
     <ClCompile Include="Grammar.cpp" />
     <ClCompile Include="Grammar_parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Element.h" />
     <ClInclude Include="Grammar.h" />
     <ClInclude Include="Grammar_parser.h" />
     <ClInclude Include="Grammar_part.h" />
+    <ClInclude Include="Hash.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
