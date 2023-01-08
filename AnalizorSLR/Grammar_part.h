@@ -8,7 +8,7 @@ using namespace std;
 class Grammar_part
 {
 public:
-	enum Grammar_part_type { TERMINAL, NONTERMINAL, EPSILON };
+	enum Grammar_part_type { TERMINAL, NONTERMINAL, EPSILON, DOLLAR };
 	Grammar_part_type type;
 	int id;
 
@@ -24,6 +24,7 @@ inline void hash_combine(std::size_t& s, const T& v) {
 }
 
 const Grammar_part EPSILON{ Grammar_part::EPSILON, -1 };
+const Grammar_part DOLLAR{ Grammar_part::DOLLAR, -4 };
 
 namespace std {
 	template<>

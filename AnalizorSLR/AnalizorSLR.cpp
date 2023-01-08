@@ -30,6 +30,17 @@ int main(int argc, char** argv) {
             printf("\n");
         }
         printf("}\n");
+
+        auto follow1 = grammar.getFollow1();
+        printf("FOLLOW = {\n");
+        for (auto kv_pair : follow1) {
+            printf("\t%d: ", kv_pair.first);
+            for (auto symbol : kv_pair.second) {
+                printf("%d, ", symbol.id);
+            }
+            printf("\n");
+        }
+        printf("}\n");
     }
     catch (const Parse_exception& ex) {
         cout << "Line " << ex.line << ": " << ex.message << endl;
