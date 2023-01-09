@@ -1,0 +1,210 @@
+%term IDENTIFIER 0
+%term CONSTANT 1
+%term INCLUDE 2
+%term DEFINE 3
+%term TYPEDEF 4
+%term STRUCT 5
+%term CHAR 6
+%term INT 7
+%term FLOAT 8
+%term VOID 9
+%term MAIN 10
+%term RETURN 11
+%term BREAK 12
+%term CONTINUE 13
+%term DO 14
+%term WHILE 15
+%term FOR 16
+%term IF 17
+%term ELSE 18
+%term SCANF 19
+%term PRINTF 20
+%term AND 21
+%term OR 22
+%term EQ 23
+%term NE 24
+%term LE 25
+%term GE 26
+%term LESS 27
+%term GREATER 28
+%term LPARAN 29
+%term RPARAN 30
+%term SEMICOLON 31
+%term OB 32
+%term CB 33
+%term ASSIGNMENT 34
+%term ADD 35
+%term SUB 36
+%term MUL 37
+%term DIV 38
+%term MOD 39
+%term DOT 40
+%term COMMA 41
+%term NOT 42
+%term BITAND 43
+%term SWITCH 44
+%term CASE 45
+%term DEFAULT 46
+%term COLON 47
+
+%nonterm program
+%nonterm directiva
+%nonterm include_dir
+%nonterm define_dir
+%nonterm declaratie
+%nonterm declaratie_functie
+%nonterm declaratie_var
+%nonterm declaratie_tip
+%nonterm declaratie_struct
+%nonterm lista_declaratie_var
+%nonterm lista_id
+%nonterm lista_parametrii
+%nonterm lista_parametrii_nevid
+%nonterm tip_nevid
+%nonterm main
+%nonterm block_instructiuni
+%nonterm lista_instructiuni
+%nonterm instructiune
+%nonterm atribuire
+%nonterm expresie
+%nonterm expresie1
+%nonterm expresie2
+%nonterm expresie3
+%nonterm expresie4
+%nonterm expresie5
+%nonterm operator_binar4
+%nonterm operator_binar3
+%nonterm operator_binar2
+%nonterm operator_binar1
+%nonterm identificator
+%nonterm lista_parametrii_trimisi
+%nonterm lista_parametrii_trimisi_nevid
+%nonterm structura_conditionala
+%nonterm structura_switch
+%nonterm lista_case
+%nonterm structura_repetitiva
+%nonterm structura_if
+%nonterm structura_do_while
+%nonterm op_io
+%nonterm op_citire
+%nonterm op_scriere
+%nonterm parametrii_scriere
+%nonterm parametrii_scriere_aditonali
+%nonterm lista_pointeri
+
+program -> directiva program
+program -> declaratie_functie program
+program -> declaratie_var SEMICOLON program
+program -> declaratie_tip SEMICOLON program
+program -> declaratie_struct SEMICOLON program
+program -> main
+directiva -> include_dir
+directiva -> define_dir
+include_dir -> INCLUDE LESS IDENTIFIER DOT IDENTIFIER GREATER
+include_dir -> INCLUDE CONSTANT
+define_dir -> DEFINE IDENTIFIER IDENTIFIER
+define_dir -> DEFINE IDENTIFIER CONSTANT
+declaratie -> declaratie_functie
+declaratie -> declaratie_var
+declaratie -> declaratie_tip
+declaratie -> declaratie_struct
+declaratie_functie -> tip_nevid IDENTIFIER LPARAN lista_parametrii RPARAN block_instructiuni
+declaratie_functie -> VOID IDENTIFIER LPARAN lista_parametrii RPARAN block_instructiuni
+declaratie_var -> tip_nevid lista_id
+declaratie_tip -> TYPEDEF tip_nevid IDENTIFIER
+declaratie_tip -> TYPEDEF declaratie_struct IDENTIFIER
+declaratie_struct -> STRUCT OB lista_declaratie_var CB
+declaratie_struct -> STRUCT IDENTIFIER OB lista_declaratie_var CB
+lista_declaratie_var -> declaratie_var SEMICOLON lista_declaratie_var
+lista_declaratie_var -> declaratie_var SEMICOLON
+lista_id -> IDENTIFIER COMMA lista_id
+lista_id -> IDENTIFIER
+lista_parametrii -> 
+lista_parametrii -> tip_nevid IDENTIFIER
+lista_parametrii -> tip_nevid IDENTIFIER COMMA lista_parametrii_nevid
+lista_parametrii_nevid -> tip_nevid IDENTIFIER COMMA lista_parametrii_nevid
+lista_parametrii_nevid -> tip_nevid IDENTIFIER
+tip_nevid -> CHAR
+tip_nevid -> INT
+tip_nevid -> FLOAT
+tip_nevid -> STRUCT IDENTIFIER
+tip_nevid -> IDENTIFIER
+main -> INT MAIN LPARAN RPARAN block_instructiuni
+block_instructiuni -> OB lista_instructiuni CB
+lista_instructiuni -> 
+lista_instructiuni -> instructiune SEMICOLON lista_instructiuni
+lista_instructiuni -> block_instructiuni lista_instructiuni
+lista_instructiuni -> structura_conditionala lista_instructiuni
+instructiune -> declaratie
+instructiune -> op_io
+instructiune -> expresie
+instructiune -> atribuire
+instructiune -> RETURN
+instructiune -> RETURN expresie
+instructiune -> BREAK
+instructiune -> CONTINUE
+atribuire -> identificator ASSIGNMENT expresie
+expresie -> expresie1
+expresie1 -> expresie2 operator_binar1 expresie1
+expresie1 -> expresie2
+expresie2 -> expresie3 operator_binar2 expresie2
+expresie2 -> expresie3
+expresie3 -> expresie4 operator_binar3 expresie3
+expresie3 -> expresie4
+expresie4 -> expresie5 operator_binar4 expresie4
+expresie4 -> expresie5
+expresie5 -> CONSTANT
+expresie5 -> identificator
+expresie5 -> LPARAN expresie RPARAN
+expresie5 -> NOT expresie5
+operator_binar4 -> MUL
+operator_binar4 -> DIV
+operator_binar4 -> MOD
+operator_binar3 -> ADD
+operator_binar3 -> SUB
+operator_binar2 -> EQ
+operator_binar2 -> NE
+operator_binar2 -> GREATER
+operator_binar2 -> LESS
+operator_binar2 -> LE
+operator_binar2 -> GE
+operator_binar1 -> AND
+operator_binar1 -> OR
+identificator -> IDENTIFIER
+identificator -> IDENTIFIER DOT identificator
+identificator -> IDENTIFIER LPARAN lista_parametrii_trimisi RPARAN
+identificator -> BITAND identificator
+lista_parametrii_trimisi -> 
+lista_parametrii_trimisi -> expresie
+lista_parametrii_trimisi -> expresie COMMA lista_parametrii_trimisi_nevid
+lista_parametrii_trimisi_nevid -> expresie COMMA lista_parametrii_trimisi_nevid
+lista_parametrii_trimisi_nevid -> expresie
+structura_conditionala -> structura_repetitiva instructiune SEMICOLON
+structura_conditionala -> structura_repetitiva block_instructiuni
+structura_conditionala -> structura_if
+structura_conditionala -> structura_do_while
+structura_conditionala -> structura_switch
+structura_switch -> SWITCH LPARAN expresie RPARAN OB lista_case CB
+lista_case -> CASE CONSTANT COLON lista_instructiuni
+lista_case -> DEFAULT COLON lista_instructiuni
+lista_case -> CASE CONSTANT COLON lista_instructiuni lista_case
+structura_repetitiva -> WHILE LPARAN expresie RPARAN
+structura_repetitiva -> FOR LPARAN atribuire SEMICOLON expresie SEMICOLON atribuire RPARAN
+structura_if -> IF LPARAN expresie RPARAN instructiune SEMICOLON
+structura_if -> IF LPARAN expresie RPARAN block_instructiuni
+structura_if -> IF LPARAN expresie RPARAN instructiune SEMICOLON ELSE instructiune SEMICOLON
+structura_if -> IF LPARAN expresie RPARAN block_instructiuni ELSE instructiune SEMICOLON
+structura_if -> IF LPARAN expresie RPARAN instructiune SEMICOLON ELSE block_instructiuni
+structura_if -> IF LPARAN expresie RPARAN block_instructiuni ELSE block_instructiuni
+structura_do_while -> DO instructiune SEMICOLON WHILE LPARAN expresie RPARAN SEMICOLON
+structura_do_while -> DO block_instructiuni WHILE LPARAN expresie RPARAN SEMICOLON
+op_io -> op_citire
+op_io -> op_scriere
+op_citire -> SCANF LPARAN CONSTANT COMMA lista_pointeri RPARAN
+op_scriere -> PRINTF LPARAN parametrii_scriere RPARAN
+parametrii_scriere -> CONSTANT
+parametrii_scriere -> CONSTANT COMMA parametrii_scriere_aditonali
+parametrii_scriere_aditonali -> expresie
+parametrii_scriere_aditonali -> expresie COMMA parametrii_scriere_aditonali
+lista_pointeri -> expresie COMMA lista_pointeri
+lista_pointeri -> expresie

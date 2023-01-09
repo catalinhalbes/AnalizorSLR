@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
             parser.get_rules()
         );
 
-        auto first1 = grammar.getFirst1();
+        /*auto first1 = grammar.getFirst1();
         printf("FIRST = {\n");
         for (auto kv_pair : first1) {
             printf("\t%d: ", kv_pair.first);
@@ -40,9 +40,9 @@ int main(int argc, char** argv) {
             }
             printf("\n");
         }
-        printf("}\n");
+        printf("}\n");*/
 
-        const auto& cc = grammar.getCanonicalClosure();
+        /*const auto& cc = grammar.getCanonicalClosure();
 
         for (int i = 0; i < cc.size(); i++) {
             printf("I%d {\n", i);
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
                 else
                     printf("I%d --%d(T)--> I%d\n", start_idx, pair2.first.id, pair2.second);
             }
-        }
+        }*/
 
         printf("\nRules\n");
 
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
             printf("\n");
         }
 
-        printf("\nSLR TABLE:\n");
+        /*printf("\nSLR TABLE:\n");
 
         const auto& SLR_table = grammar.getSLRTable();
 
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
                     }
                 }
             }
-        }
+        }*/
 
         cout << "\nEvaluate: ";
         vector<int> fip = Fip_reader::read(argv[2]);
