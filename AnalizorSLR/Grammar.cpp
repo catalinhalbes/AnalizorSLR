@@ -369,3 +369,116 @@ Grammar::Grammar(
 	gatherAllRules();
 	computeSLRTable();
 }
+
+vector<int> Grammar::analyze(vector<int> fip) const
+{
+	stack<int> productions;
+	vector<int> rez;
+	list<pair<Grammar_part, int>> work_stack;
+	const list<pair<Grammar_part, int>> accept_stack{
+		{DOLLAR, 0},
+		{ Grammar_part {Grammar_part::NONTERMINAL, original_start_nonterminal}, accept_state }
+	};
+
+	int fip_index = 0;
+	work_stack.push_back(make_pair(DOLLAR, 0));
+
+	bool finished = false;
+	while (!finished) {
+		const auto& back = work_stack.back();
+		Grammar_part fip_el;
+
+		if (fip_index == fip.size()) {
+			fip_el = DOLLAR;		//reached end, only dollar remaining
+		}
+		else if (fip_index < fip.size()) {
+			fip_el.type = Grammar_part::TERMINAL;
+			fip_el.id = fip[fip_index];
+		}
+		else {
+			// already validated when incremented, but to make sure
+			throw Grammar_exception("Parse fail (reached end of input)");
+		}
+
+		if (!SLR_table.count(back.second) || !SLR_table.at(back.second).count(fip_el)) {
+			//rule doesn't exist
+			throw Grammar_exception("Parse fail");
+		}
+
+		//rule exists
+		const Action& ac = SLR_table.at(back.second).at(fip_el);
+		switch (ac.type)
+		{
+		case Action::SHIFT:
+			work_stack.push_back(make_pair(fip_el, ac.code));
+
+			if (fip_index >= fip.size()) {
+				throw Grammar_exception("Parse fail (reached end of input)");
+			}
+
+			fip_index += 1;
+			break;
+
+		case Action::REDUCE:
+			{
+				productions.push(ac.code);
+				const auto& rule = all_rules.at(ac.code);
+				if (rule.second.size() == 1 && rule.second[0].type == Grammar_part::EPSILON) {
+					// epsilon production
+
+					Grammar_part reduced_part{ Grammar_part::NONTERMINAL, rule.first };
+					int reduced_code;
+					if (!SLR_table.count(work_stack.back().second) || !SLR_table.at(work_stack.back().second).count(reduced_part)) {
+						//rule doesn't exist
+						throw Grammar_exception("Parse fail (reduce, epsilon transition)");
+					}
+
+					reduced_code = SLR_table.at(work_stack.back().second).at(reduced_part).code;
+					work_stack.push_back(make_pair(reduced_part, reduced_code));
+				}
+				else {
+					for (int i = rule.second.size() - 1; i >= 0; i--) {	//remove from work stack the right side of the rule
+						if (work_stack.back().first != rule.second[i]) {
+							// reduce, but work stack doesn't have the correct configuration
+							throw Grammar_exception("Parse fail (working stack doesn't have the correct configuration)");
+						}
+						work_stack.pop_back();
+					}
+
+					Grammar_part reduced_part{ Grammar_part::NONTERMINAL, rule.first };
+					int reduced_code;
+					if (!SLR_table.count(work_stack.back().second) || !SLR_table.at(work_stack.back().second).count(reduced_part)) {
+						//rule doesn't exist
+						throw Grammar_exception("Parse fail (reduce)");
+					}
+
+					reduced_code = SLR_table.at(work_stack.back().second).at(reduced_part).code;
+					work_stack.push_back(make_pair(reduced_part, reduced_code));
+				}
+			}
+			break;
+
+		case Action::ACCEPT:
+			if (
+				fip_index == fip.size() &&	//input empty
+				work_stack == accept_stack	//work stack in accept configuration
+			) {
+				finished = true;
+			}
+			else {
+				throw Grammar_exception("Parse fail (not an ending configuration)");
+			}
+			break;
+
+		default:
+			throw Grammar_exception("Unexpected exception");
+		}
+	}
+
+	while (!productions.empty()) {
+		rez.push_back(productions.top());
+		productions.pop();
+	}
+
+	return rez;
+}
