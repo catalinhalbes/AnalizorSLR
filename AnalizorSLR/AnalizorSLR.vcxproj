@@ -133,6 +133,7 @@
     <ClCompile Include="Grammar_parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Action.h" />
     <ClInclude Include="Element.h" />
     <ClInclude Include="Grammar.h" />
     <ClInclude Include="Grammar_parser.h" />

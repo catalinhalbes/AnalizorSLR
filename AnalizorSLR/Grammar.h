@@ -3,9 +3,11 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
+#include <algorithm>
 
 #include "Grammar_part.h"
 #include "Hash.h"
+#include "Action.h"
 
 using namespace std;
 
@@ -35,10 +37,15 @@ private:
 	unordered_map<int, unordered_map<Grammar_part, int>> AF;
 	int accept_state = -1;	//canonical_closure index
 
+	unordered_map<int, unordered_map<Grammar_part, Action>> SLR_table;
+	vector<pair<int, vector<Grammar_part>>> all_rules;
+
 	void enrichGrammar();
 	void computeCanonicalClosure();
 	void computeFirst1();
 	void computeFollow1();
+	void computeSLRTable();
+	void gatherAllRules();
 	unordered_set<Element> closure(const Element& e) const;
 	unordered_set<Element> goTo(const unordered_set<Element>& es, const Grammar_part& p) const;
 
@@ -60,5 +67,7 @@ public:
 	const vector<unordered_set<Element>>& getCanonicalClosure() const;
 	int getAcceptState() const;
 	const unordered_map<int, unordered_map<Grammar_part, int>>& getAF() const;
+	const unordered_map<int, unordered_map<Grammar_part, Action>>& getSLRTable() const;
+	const vector<pair<int, vector<Grammar_part>>>& getAllRules() const;
 };
 

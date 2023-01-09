@@ -24,7 +24,7 @@ public:
 	}
 
 	inline bool isDotAtEnd() const {
-		return dot_pos == right.size();
+		return dot_pos == right.size() || getSymbolPastDot().type == Grammar_part::EPSILON;
 	}
 
 	inline bool operator == (const Element& ot) const {

@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
             printf("}\n");
         }
 
-        printf("Accept state: I%d\n", grammar.getAcceptState());
+        printf("\nAccept state: I%d\n\n", grammar.getAcceptState());
 
         auto const& AF = grammar.getAF();
 
@@ -86,9 +86,67 @@ int main(int argc, char** argv) {
                     printf("I%d --%d(T)--> I%d\n", start_idx, pair2.first.id, pair2.second);
             }
         }
+
+        printf("\nRules\n");
+
+        const auto& all_rules = grammar.getAllRules();
+
+        for (int i = 0; i < all_rules.size(); i++) {
+            const auto& rule = all_rules[i];
+            printf("(%d) %d(N) -> ", i, rule.first);
+            for (const auto& el : rule.second) {
+                if (el.type == Grammar_part::NONTERMINAL)
+                    printf("%d(N) ", el.id);
+                else if (el.type == Grammar_part::TERMINAL)
+                    printf("%d(T) ", el.id);
+                else if (el.type == Grammar_part::EPSILON)
+                    printf("EPS ");
+            }
+            printf("\n");
+        }
+
+        printf("\nSLR TABLE:\n");
+
+        const auto& SLR_table = grammar.getSLRTable();
+
+        for (const auto& pair1 : SLR_table) {
+            int start_idx = pair1.first;
+            for (const auto& pair2 : pair1.second) {
+                if (pair2.first.type == Grammar_part::NONTERMINAL) {
+                    if (pair2.second.type == Action::SHIFT) {
+                        printf("I%d --%d(N)--> S%d\n", start_idx, pair2.first.id, pair2.second.code);
+                    }
+                    else if (pair2.second.type == Action::REDUCE) {
+                        printf("I%d --%d(N)--> R%d\n", start_idx, pair2.first.id, pair2.second.code);
+                    }
+                }
+                else if(pair2.first.type == Grammar_part::TERMINAL) {
+                    if (pair2.second.type == Action::SHIFT) {
+                        printf("I%d --%d(T)--> S%d\n", start_idx, pair2.first.id, pair2.second.code);
+                    }
+                    else if (pair2.second.type == Action::REDUCE) {
+                        printf("I%d --%d(T)--> R%d\n", start_idx, pair2.first.id, pair2.second.code);
+                    }
+                }
+                else if (pair2.first.type == Grammar_part::DOLLAR) {
+                    if (pair2.second.type == Action::SHIFT) {
+                        printf("I%d --($)--> S%d\n", start_idx, pair2.second.code);
+                    }
+                    else if (pair2.second.type == Action::REDUCE) {
+                        printf("I%d --($)--> R%d\n", start_idx, pair2.second.code);
+                    }
+                    else if (pair2.second.type == Action::ACCEPT) {
+                        printf("I%d --($)--> ACC\n", start_idx);
+                    }
+                }
+            }
+        }
     }
     catch (const Parse_exception& ex) {
         cout << "Line " << ex.line << ": " << ex.message << endl;
+    }
+    catch (const Grammar_exception& ex) {
+        cout << ex.message << endl;
     }
 
     return 0;

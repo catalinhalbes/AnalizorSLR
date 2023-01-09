@@ -49,6 +49,16 @@ const unordered_map<int, unordered_map<Grammar_part, int>>& Grammar::getAF() con
 	return AF;
 }
 
+const unordered_map<int, unordered_map<Grammar_part, Action>>& Grammar::getSLRTable() const
+{
+	return SLR_table;
+}
+
+const vector<pair<int, vector<Grammar_part>>>& Grammar::getAllRules() const
+{
+	return all_rules;
+}
+
 void Grammar::enrichGrammar()
 {
 	int added = nonterminals.size();
@@ -220,6 +230,65 @@ void Grammar::computeFollow1()
 	} while (modified);
 }
 
+void Grammar::computeSLRTable()
+{
+	//add shifts
+	for (const auto& pair1 : AF) {
+		int start_id = pair1.first;
+		for (const auto& pair2 : pair1.second) {
+			SLR_table[start_id][pair2.first] = Action{ Action::SHIFT, pair2.second };
+		}
+	}
+
+	//add reduce
+	for (int i = 0; i < canonical_closure.size(); i++) {
+		for (const Element& el : canonical_closure[i]) {
+			if (!el.isDotAtEnd()) {
+				continue;
+			}
+
+			int rule_idx = find(all_rules.begin(), all_rules.end(), make_pair(el.left, el.right)) - all_rules.begin();
+			
+			if (SLR_table[i].find(el.u) == SLR_table[i].end()) {
+				if (i != accept_state) {
+					SLR_table[i][el.u] = Action{ Action::REDUCE, rule_idx };
+				}
+				else {
+					SLR_table[i][el.u] = Action{ Action::ACCEPT, rule_idx };
+				}
+			}
+			else {
+				string err;
+				if (SLR_table[i][el.u].type == Action::SHIFT) {
+					err = "Shift / Reduce conflict";
+				}
+				else if (SLR_table[i][el.u].type == Action::REDUCE) {
+					err = "Reduce / Reduce conflict";
+				}
+				else {
+					err = "Unindentified conflict";
+				}
+
+				throw Grammar_exception(err);
+			}
+		}
+	}
+}
+
+void Grammar::gatherAllRules()
+{
+	for (const auto& p1 : rules) {
+		int nonterminal_id = p1.first;
+		for (const auto& rule : p1.second) {
+			all_rules.push_back(make_pair(nonterminal_id, rule));
+		}
+	}
+
+	sort(all_rules.begin(), all_rules.end(), [](pair<int, vector<Grammar_part>> a, pair<int, vector<Grammar_part>> b) -> bool {
+		return a.first < b.first;
+		});
+}
+
 unordered_set<Element> Grammar::closure(const Element& e) const
 {
 	unordered_set<Element> rez;
@@ -297,4 +366,6 @@ Grammar::Grammar(
 	computeFirst1();
 	computeFollow1();
 	computeCanonicalClosure();
+	gatherAllRules();
+	computeSLRTable();
 }
