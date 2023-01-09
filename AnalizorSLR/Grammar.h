@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <stack>
+#include <list>
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
@@ -56,6 +58,8 @@ public:
 		int start_nonterminal, 
 		const unordered_map<int, vector<vector<Grammar_part>>>& rules
 	);
+
+	vector<int> analyze(vector<int> fip) const;
 
 	static unordered_set<Grammar_part> plus1(
 		const unordered_set<Grammar_part>& L1,

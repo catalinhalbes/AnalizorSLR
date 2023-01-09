@@ -1,9 +1,9 @@
 #include <iostream>
 #include "Grammar_parser.h"
 #include "Grammar.h"
+#include "Fip_reader.h"
 
-using std::cout;
-using std::endl;
+using namespace std;
 
 int main(int argc, char** argv) {
     if (argc < 3) {
@@ -141,6 +141,22 @@ int main(int argc, char** argv) {
                 }
             }
         }
+
+        cout << "\nEvaluate: ";
+        vector<int> fip = Fip_reader::read(argv[2]);
+
+        for (int val : fip) {
+            cout << val << " ";
+        }
+        cout << endl << endl;
+
+        vector<int> prod = grammar.analyze(fip);
+
+        cout << "Prod: ";
+        for (int val : prod) {
+            cout << val << " ";
+        }
+        cout << endl << endl;
     }
     catch (const Parse_exception& ex) {
         cout << "Line " << ex.line << ": " << ex.message << endl;

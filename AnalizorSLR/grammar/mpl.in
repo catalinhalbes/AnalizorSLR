@@ -1,0 +1,233 @@
+%token IDENTIFIER 0
+%token CONSTANT 1
+%token INCLUDE 2
+%token DEFINE 3
+%token TYPEDEF 4
+%token STRUCT 5
+%token CHAR 6
+%token INT 7
+%token FLOAT 8
+%token VOID 9
+%token MAIN 10 
+%token RETURN 11
+%token BREAK 12 
+%token CONTINUE 13
+%token DO 14
+%token WHILE 15
+%token FOR 16
+%token IF 17
+%token ELSE 18
+%token SCANF 19
+%token PRINTF 20
+%token AND 21
+%token OR 22
+%token EQ 23 
+%token NE 24
+%token LE 25
+%token GE 26 
+%token OB 32
+%token CB 33
+%token SWITCH 44
+%token CASE 45
+%token DEFAULT 46
+
+program : directiva program
+		| declaratie_functie program
+		| declaratie_var ';' program
+		| declaratie_tip ';' program
+		| declaratie_struct ';' program
+		| main
+		;
+		
+directiva 	: include_dir
+			| define_dir
+			;
+			
+include_dir : INCLUDE '<' IDENTIFIER '.' IDENTIFIER '>'
+			| INCLUDE CONSTANT
+			;
+			
+define_dir 	: DEFINE IDENTIFIER IDENTIFIER
+			| DEFINE IDENTIFIER CONSTANT
+			;
+			
+declaratie 	: declaratie_functie
+			| declaratie_var
+			| declaratie_tip
+			| declaratie_struct
+			;
+			
+declaratie_functie 	: tip_nevid IDENTIFIER '(' lista_parametrii ')' block_instructiuni
+					| VOID IDENTIFIER '(' lista_parametrii ')' block_instructiuni
+					;
+					
+declaratie_var	: tip_nevid lista_id
+				;
+				
+declaratie_tip 	: TYPEDEF tip_nevid IDENTIFIER
+				| TYPEDEF declaratie_struct IDENTIFIER
+				;
+				
+declaratie_struct	: STRUCT OB lista_declaratie_var CB
+					| STRUCT IDENTIFIER OB lista_declaratie_var CB
+					;
+					
+lista_declaratie_var	: declaratie_var ';' lista_declaratie_var
+						| declaratie_var ';'
+				
+lista_id	: IDENTIFIER ',' lista_id
+			| IDENTIFIER
+			;
+
+lista_parametrii	: %empty
+					| tip_nevid IDENTIFIER 
+					| tip_nevid IDENTIFIER ',' lista_parametrii_nevid
+					;
+					
+lista_parametrii_nevid	 	: tip_nevid IDENTIFIER ',' lista_parametrii_nevid
+							| tip_nevid IDENTIFIER
+							;
+tip_nevid 	: CHAR
+			| INT
+			| FLOAT
+			| STRUCT IDENTIFIER
+			| IDENTIFIER
+			;
+			
+main 	: INT MAIN '(' ')' block_instructiuni 
+		;
+		
+block_instructiuni 	: OB lista_instructiuni CB
+
+lista_instructiuni 	: %empty
+					| instructiune ';' lista_instructiuni
+					| block_instructiuni lista_instructiuni
+					| structura_conditionala lista_instructiuni
+					;
+					
+instructiune 	: declaratie
+				| op_io
+				| expresie
+				| atribuire
+				| RETURN
+				| RETURN expresie
+				| BREAK
+				| CONTINUE
+				;
+				
+atribuire	: identificator '=' expresie
+				
+expresie	: expresie1
+ 			;
+			
+expresie1 	: expresie2 operator_binar1 expresie1
+			| expresie2
+			;
+			
+expresie2 	: expresie3 operator_binar2 expresie2
+			| expresie3
+			;
+			
+expresie3 	: expresie4 operator_binar3 expresie3
+			| expresie4
+			;
+			
+expresie4 	: expresie5 operator_binar4 expresie4
+			| expresie5
+			;
+			
+expresie5	: CONSTANT
+			| identificator
+			| '(' expresie ')'
+			| '!' expresie5
+			;
+			
+operator_binar4 : '*' 
+				| '/' 
+				| '%' 
+				;
+				
+operator_binar3 : '+' 
+				| '-'
+				;
+
+operator_binar2 : EQ
+				| NE 
+				| '>' 
+				| '<' 
+				| LE 
+				| GE
+				;
+
+operator_binar1 : AND
+				| OR
+				;
+			
+identificator	: IDENTIFIER
+				| IDENTIFIER '.' identificator
+				| IDENTIFIER '(' lista_parametrii_trimisi ')'
+				;
+				
+lista_parametrii_trimisi	: %empty
+							| expresie 
+							| expresie ',' lista_parametrii_trimisi_nevid
+							;
+					
+lista_parametrii_trimisi_nevid	: expresie ',' lista_parametrii_trimisi_nevid
+								| expresie
+								;
+								
+structura_conditionala	: structura_repetitiva instructiune ';'
+						| structura_repetitiva block_instructiuni
+						| structura_if
+						| structura_do_while
+						| structura_switch
+						;
+						
+structura_switch 	: SWITCH '(' expresie ')' OB lista_case CB
+					;
+					
+lista_case 	: CASE CONSTANT ':' lista_instructiuni 
+			| DEFAULT ':' lista_instructiuni
+			| CASE CONSTANT ':' lista_instructiuni lista_case
+			;
+						
+structura_repetitiva	: WHILE '(' expresie ')'
+						| FOR '(' atribuire ';' expresie ';' atribuire ')'
+						;
+						
+structura_if	: IF '(' expresie ')' instructiune ';'
+				| IF '(' expresie ')' block_instructiuni
+				| IF '(' expresie ')' instructiune ';' ELSE instructiune ';'
+				| IF '(' expresie ')' block_instructiuni ELSE instructiune ';'
+				| IF '(' expresie ')' instructiune ';' ELSE block_instructiuni
+				| IF '(' expresie ')' block_instructiuni ELSE block_instructiuni
+				;
+
+structura_do_while	: DO instructiune ';' WHILE '(' expresie ')' ';'
+					| DO block_instructiuni WHILE '(' expresie ')' ';'
+					;
+					
+op_io	: op_citire
+		| op_scriere
+		;
+		
+op_citire	: SCANF '(' CONSTANT ',' lista_pointeri ')'
+			;
+			
+op_scriere	: PRINTF '(' parametrii_scriere ')'
+			;
+			
+parametrii_scriere	: CONSTANT
+					| CONSTANT ',' parametrii_scriere_aditonali
+					;
+					
+parametrii_scriere_aditonali	: expresie
+								| expresie ',' parametrii_scriere_aditonali
+								;
+
+lista_pointeri	: identificator ',' lista_pointeri
+				| '&' identificator ',' lista_pointeri
+				| identificator
+				| '&' identificator
+				;
