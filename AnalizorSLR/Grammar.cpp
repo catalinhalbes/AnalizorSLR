@@ -167,14 +167,16 @@ void Grammar::computeFirst1() {
 				}
 				for (int i = 1; i < rule.size(); i++) {
 					x = rule.at(i);
-					unordered_set<Grammar_part> F1x;
+					unordered_set<Grammar_part>* F1x;
+					unordered_set<Grammar_part> empty;
 					if (x.type == Grammar_part::NONTERMINAL) {
-						F1x = F0[x.id];
+						F1x = &F0[x.id];
 					}
 					else {
-						F1x = { x };
+						F1x = &empty;
+						empty.insert(x);
 					}
-					Fsum.merge(plus1(Fsum, F1x));
+					Fsum.merge(plus1(Fsum, *F1x));
 				}
 				first1[A].merge(Fsum);
 			}
